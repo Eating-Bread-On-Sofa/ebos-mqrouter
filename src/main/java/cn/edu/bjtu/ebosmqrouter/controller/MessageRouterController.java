@@ -14,7 +14,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-@RequestMapping("/api/message")
+@RequestMapping("/api/router")
 @RestController
 public class MessageRouterController {
     @Autowired
@@ -23,7 +23,7 @@ public class MessageRouterController {
     public static ConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1,50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
 
-    @PostMapping("/analysis/raw")
+    @PostMapping("/raw")
     @ResponseBody
     public String newRaw(@RequestBody JSONObject info){
         info.put("createTime", new Date().toString());
@@ -38,7 +38,7 @@ public class MessageRouterController {
         }
     }
 
-    @PostMapping("/analysis/edgexreadings")
+    @PostMapping("/edgexreadings")
     @ResponseBody
     public String newEdgexReadings(@RequestBody JSONObject info){
         info.put("createTime", new Date().toString());
@@ -53,20 +53,20 @@ public class MessageRouterController {
         }
     }
 
-    @GetMapping("/analysis")
+    @GetMapping()
     @ResponseBody
     public JSONArray allInfo(){
         return status;
     }
 
-    @GetMapping("/analysis/table")
+    @GetMapping("/list")
     @ResponseBody
-    public LayuiTableResultUtil<JSONArray> allInfoTable(@RequestParam Integer page, @RequestParam Integer limit){
+    public LayuiTableResultUtil<JSONArray> allInfoTable(){
         LayuiTableResultUtil<JSONArray> table = new LayuiTableResultUtil<>("",status,0,status.size());
         return table;
     }
 
-    @DeleteMapping("/analysis")
+    @DeleteMapping()
     @ResponseBody
     public boolean delete(@RequestBody JSONObject info){
         return status.remove(info);
@@ -82,7 +82,7 @@ public class MessageRouterController {
         return flag;
     }
 
-    public static boolean existed(String name){
+    private static boolean existed(String name){
         boolean existed = false;
         for(int i=0; i<status.size(); i++){
             if(name.equals(status.getJSONObject(i).getString("name"))){existed = true;}
