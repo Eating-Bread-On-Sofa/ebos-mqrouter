@@ -23,8 +23,8 @@ public class MessageRouterController {
     public static ConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1,50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
 
+    @CrossOrigin
     @PostMapping("/raw")
-    @ResponseBody
     public String newRaw(@RequestBody JSONObject info){
         info.put("createTime", new Date().toString());
         if(!MessageRouterController.existed(info.getString("name"))){
@@ -38,8 +38,8 @@ public class MessageRouterController {
         }
     }
 
+    @CrossOrigin
     @PostMapping("/edgexreadings")
-    @ResponseBody
     public String newEdgexReadings(@RequestBody JSONObject info){
         info.put("createTime", new Date().toString());
         if(!MessageRouterController.existed(info.getString("name"))){
@@ -53,21 +53,21 @@ public class MessageRouterController {
         }
     }
 
+    @CrossOrigin
     @GetMapping()
-    @ResponseBody
     public JSONArray allInfo(){
         return status;
     }
 
+    @CrossOrigin
     @GetMapping("/list")
-    @ResponseBody
     public LayuiTableResultUtil<JSONArray> allInfoTable(){
         LayuiTableResultUtil<JSONArray> table = new LayuiTableResultUtil<>("",status,0,status.size());
         return table;
     }
 
+    @CrossOrigin
     @DeleteMapping()
-    @ResponseBody
     public boolean delete(@RequestBody JSONObject info){
         return status.remove(info);
     }
