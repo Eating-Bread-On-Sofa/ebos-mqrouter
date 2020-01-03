@@ -1,12 +1,21 @@
 package cn.edu.bjtu.ebosmqrouter.controller;
 
+import cn.edu.bjtu.ebosmqrouter.component.Init;
+import cn.edu.bjtu.ebosmqrouter.service.MqFactory;
+import cn.edu.bjtu.ebosmqrouter.service.impl.KafkaImpl;
+import cn.edu.bjtu.ebosmqrouter.service.impl.MqFactoryImpl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import cn.edu.bjtu.ebosmqrouter.service.MqService;
+import cn.edu.bjtu.ebosmqrouter.service.Mq;
 import cn.edu.bjtu.ebosmqrouter.util.LayuiTableResultUtil;
 import cn.edu.bjtu.ebosmqrouter.util.dataAnalysis.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jms.core.JmsMessagingTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 import javax.jms.*;
 import java.util.Date;
@@ -18,10 +27,20 @@ import java.util.concurrent.TimeUnit;
 @RestController
 public class MessageRouterController {
     @Autowired
-    MqService mqService;
+    KafkaTemplate kafkaTemplate;
+    @Autowired
+    JmsMessagingTemplate jmsMessagingTemplate;
     public static JSONArray status = new JSONArray();
     public static ConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1,50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
+
+    @GetMapping("/test/{topic}")
+    public String test(@PathVariable String topic, @RequestBody String content){
+        MqFactory mqFactory = new MqFactoryImpl(kafkaTemplate,jmsMessagingTemplate);
+        Mq mq = mqFactory.create(Init.mqname);
+        mq.publish(topic,content);
+        return Init.mqname;
+    }
 
     @CrossOrigin
     @PostMapping("/raw")
@@ -88,5 +107,11 @@ public class MessageRouterController {
             if(name.equals(status.getJSONObject(i).getString("name"))){existed = true;}
         }
         return existed;
+    }
+
+    @CrossOrigin
+    @GetMapping("/ping")
+    public String ping(){
+        return "pong";
     }
 }
