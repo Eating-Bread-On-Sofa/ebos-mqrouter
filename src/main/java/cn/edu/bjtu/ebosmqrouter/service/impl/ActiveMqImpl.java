@@ -33,10 +33,15 @@ public class ActiveMqImpl implements Mq {
     }
 
     @Override
-    public void publish(String destinationName, String message) {
-        Destination destination = new ActiveMQTopic(destinationName);
-        System.out.println("发布"+destinationName+"消息 " + message);
+    public void publish(String topic, String message) {
+        Destination destination = new ActiveMQTopic(topic);
+        System.out.println("发布"+topic+"消息 " + message);
         jmsMessagingTemplate.convertAndSend(destination, message);
+    }
+
+    @Override
+    public String getMessage(String topic){
+        return "未完成";
     }
 
 //    @JmsListener(destination = "test.topic", containerFactory = "topicContainerFactory")

@@ -34,7 +34,7 @@ public class MessageRouterController {
     public String test(@PathVariable String topic, @RequestBody String content){
         Mq mq = mqFactory.create();
         mq.publish(topic,content);
-        return "发送";
+        return mq.getClass().toString();
     }
 
     @CrossOrigin

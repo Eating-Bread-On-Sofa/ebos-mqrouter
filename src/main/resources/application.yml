@@ -23,4 +23,4 @@ spring:
 server:
   edgex: localhost
   port: 8084
-mq: kafka
+mq: activemq
