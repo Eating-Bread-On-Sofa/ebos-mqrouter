@@ -1,5 +1,6 @@
 package cn.edu.bjtu.ebosmqrouter.service;
 
 public interface MqFactory {
-    Mq create();
+    MqProducer createProducer();
+    MqConsumer createConsumer(String topic);
 }

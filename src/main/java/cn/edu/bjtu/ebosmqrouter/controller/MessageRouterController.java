@@ -3,7 +3,7 @@ package cn.edu.bjtu.ebosmqrouter.controller;
 import cn.edu.bjtu.ebosmqrouter.service.MqFactory;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import cn.edu.bjtu.ebosmqrouter.service.Mq;
+import cn.edu.bjtu.ebosmqrouter.service.MqProducer;
 import cn.edu.bjtu.ebosmqrouter.util.LayuiTableResultUtil;
 import cn.edu.bjtu.ebosmqrouter.util.dataAnalysis.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -32,9 +32,9 @@ public class MessageRouterController {
 
     @GetMapping("/test/{topic}")
     public String test(@PathVariable String topic, @RequestBody String content){
-        Mq mq = mqFactory.create();
-        mq.publish(topic,content);
-        return mq.getClass().toString();
+        MqProducer mqProducer = mqFactory.createProducer();
+        mqProducer.publish(topic,content);
+        return mqProducer.getClass().toString();
     }
 
     @CrossOrigin

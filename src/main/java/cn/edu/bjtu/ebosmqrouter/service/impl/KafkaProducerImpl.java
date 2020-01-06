@@ -1,22 +1,16 @@
 package cn.edu.bjtu.ebosmqrouter.service.impl;
 
-import cn.edu.bjtu.ebosmqrouter.service.Mq;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import cn.edu.bjtu.ebosmqrouter.service.MqProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-
-import java.util.Arrays;
-
 @Service
-public class KafkaImpl implements Mq {
+public class KafkaProducerImpl implements MqProducer {
     private KafkaTemplate kafkaTemplate;
 
     @Autowired
-    public KafkaImpl(KafkaTemplate kafkaTemplate){
+    public KafkaProducerImpl(KafkaTemplate kafkaTemplate){
         this.kafkaTemplate = kafkaTemplate;
     }
 
@@ -25,7 +19,6 @@ public class KafkaImpl implements Mq {
         kafkaTemplate.send(topic,message);
     }
 
-    @Override
     public String getMessage(String topic){
 //        KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(KafkaConfig.getProperties());
 //        kafkaConsumer.subscribe(Arrays.asList(topic));

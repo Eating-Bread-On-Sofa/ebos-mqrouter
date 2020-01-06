@@ -1,6 +1,6 @@
 package cn.edu.bjtu.ebosmqrouter.service.impl;
 
-import cn.edu.bjtu.ebosmqrouter.service.Mq;
+import cn.edu.bjtu.ebosmqrouter.service.MqProducer;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.activemq.command.ActiveMQTopic;
 
@@ -11,11 +11,11 @@ import org.springframework.jms.core.JmsMessagingTemplate;
 import javax.jms.Destination;
 
 @Service("activemq")
-public class ActiveMqImpl implements Mq {
+public class ActiveMqProducerImpl implements MqProducer {
     private JmsMessagingTemplate jmsMessagingTemplate;
 
     @Autowired
-    public ActiveMqImpl(JmsMessagingTemplate jmsMessagingTemplate){
+    public ActiveMqProducerImpl(JmsMessagingTemplate jmsMessagingTemplate){
         this.jmsMessagingTemplate = jmsMessagingTemplate;
     }
 //    @Bean
@@ -39,7 +39,6 @@ public class ActiveMqImpl implements Mq {
         jmsMessagingTemplate.convertAndSend(destination, message);
     }
 
-    @Override
     public String getMessage(String topic){
         return "未完成";
     }
