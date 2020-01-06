@@ -6,12 +6,8 @@ import com.alibaba.fastjson.JSONObject;
 import cn.edu.bjtu.ebosmqrouter.service.MqProducer;
 import cn.edu.bjtu.ebosmqrouter.util.LayuiTableResultUtil;
 import cn.edu.bjtu.ebosmqrouter.util.dataAnalysis.*;
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.core.JmsMessagingTemplate;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
-import javax.jms.*;
 import java.util.Date;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -21,13 +17,8 @@ import java.util.concurrent.TimeUnit;
 @RestController
 public class MessageRouterController {
     @Autowired
-    KafkaTemplate kafkaTemplate;
-    @Autowired
-    JmsMessagingTemplate jmsMessagingTemplate;
-    @Autowired
     MqFactory mqFactory;
     public static JSONArray status = new JSONArray();
-    public static ConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1,50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
 
     @GetMapping("/test/{topic}")
@@ -52,20 +43,6 @@ public class MessageRouterController {
         }
     }
 
-    @CrossOrigin
-    @PostMapping("/edgexreadings")
-    public String newEdgexReadings(@RequestBody JSONObject info){
-        info.put("createTime", new Date().toString());
-        if(!MessageRouterController.existed(info.getString("name"))){
-            try{
-                EdgexReadings edgexReadings = new EdgexReadings(info.getString("name"),info.getString("incomingQueue"),info.getString("outgoingQueue"));
-                status.add(info);
-                threadPoolExecutor.execute(edgexReadings);
-                return "启动成功~~";}catch (Exception e){return "参数错误!";}
-        }else {
-            return "名称重复！";
-        }
-    }
 
     @CrossOrigin
     @GetMapping()

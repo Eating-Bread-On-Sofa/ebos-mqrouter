@@ -1,24 +1,19 @@
 package cn.edu.bjtu.ebosmqrouter.util.dataAnalysis;
 
+import cn.edu.bjtu.ebosmqrouter.service.MqConsumer;
 import cn.edu.bjtu.ebosmqrouter.service.MqFactory;
-import cn.edu.bjtu.ebosmqrouter.service.impl.ActiveMqConsumerImpl;
 import com.alibaba.fastjson.JSONObject;
 import cn.edu.bjtu.ebosmqrouter.controller.MessageRouterController;
 import cn.edu.bjtu.ebosmqrouter.service.MqProducer;
 import cn.edu.bjtu.ebosmqrouter.util.ApplicationContextProvider;
-import org.apache.activemq.command.ActiveMQMapMessage;
 
-import javax.jms.*;
-import java.util.Map;
 
 public class Raw implements Runnable {
 
     private String name;
     private String incomingQueue;
     private String outgoingQueue;
-    private ConnectionFactory connectionFactory = ActiveMqConsumerImpl.connectionFactory;
     private MqFactory mqFactory = ApplicationContextProvider.getBean(MqFactory.class);
-    private MqProducer mqProducer = mqFactory.createProducer();
 
     public Raw(String name, String incomingQueue, String outgoingQueue) {
         this.name = name;
@@ -37,24 +32,18 @@ public class Raw implements Runnable {
     @Override
     public void run() {
         try {
-            Connection connection = connectionFactory.createConnection();
-            connection.start();
-            Session session = connection.createSession(Boolean.FALSE, Session.AUTO_ACKNOWLEDGE);
-            Destination destination = session.createTopic(this.incomingQueue);
-            MessageConsumer consumer = session.createConsumer(destination);
+            MqProducer mqProducer = mqFactory.createProducer();
+            MqConsumer mqConsumer = mqFactory.createConsumer(incomingQueue);
             while (MessageRouterController.check(name)) {
                 try {
-                    ActiveMQMapMessage activeMQMapMessage = (ActiveMQMapMessage) consumer.receive();
-                    Map content = activeMQMapMessage.getContentMap();
-                    JSONObject msg = new JSONObject(content);
-                    System.out.println("收到"+destination+msg);
+                    String msg = mqConsumer.subscribe();
+                    System.out.println("收到"+incomingQueue+msg);
                     //TO DO CACULATION HERE
 
-                    mqProducer.publish(this.outgoingQueue,content.toString());
+                    mqProducer.publish(this.outgoingQueue,msg);
 
                 }catch (Exception e){e.printStackTrace();break;}
             }
-            connection.close();
         }catch (Exception e){e.printStackTrace();}
     }
 

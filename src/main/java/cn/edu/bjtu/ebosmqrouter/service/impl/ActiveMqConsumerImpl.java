@@ -2,15 +2,15 @@ package cn.edu.bjtu.ebosmqrouter.service.impl;
 
 import cn.edu.bjtu.ebosmqrouter.service.MqConsumer;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.command.ActiveMQMapMessage;
+import org.apache.activemq.command.ActiveMQBytesMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
+import org.apache.activemq.util.ByteSequence;
 
 import javax.jms.*;
-import java.util.Map;
 
 public class ActiveMqConsumerImpl implements MqConsumer {
     private MessageConsumer messageConsumer;
-    public static ConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
+    private static ConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
 
     public ActiveMqConsumerImpl(String topic){
         try {
@@ -28,6 +28,13 @@ public class ActiveMqConsumerImpl implements MqConsumer {
         try {
             ActiveMQTextMessage activeMQTextMessage = (ActiveMQTextMessage) messageConsumer.receive();
             return activeMQTextMessage.getText();
-        }catch (Exception e){e.printStackTrace();return "啥也没收到";}
+        }catch (Exception e){
+            try {
+                ActiveMQBytesMessage activeMQMessage = (ActiveMQBytesMessage) messageConsumer.receive();
+                ByteSequence content = activeMQMessage.getContent();
+                String msg = new String(content.getData());
+                return msg;
+            }catch (Exception e1){e1.printStackTrace();return "收到的消息类型不支持";}
+        }
     }
 }

@@ -23,7 +23,7 @@ public class InitListener implements ApplicationRunner {
             while (true) {
                 try {
                     String msg = mqConsumer.subscribe();
-                    System.out.println("收到" + msg);
+                    System.out.println("收到：" + msg);
                 }catch (Exception e){}
             }
         }).start();
