@@ -24,19 +24,25 @@ public class ActiveMqConsumerImpl implements MqConsumer {
     }
 
     @Override
-    public String subscribe(){
+    public String subscribe() {
         try {
-            ActiveMQBytesMessage activeMQMessage = (ActiveMQBytesMessage) messageConsumer.receive();
-            ByteSequence content = activeMQMessage.getContent();
-            String msg = new String(content.getData());
-            System.out.println("byte");
-            return msg;
-        }catch (Exception e){
-            try {
-                ActiveMQTextMessage activeMQTextMessage = (ActiveMQTextMessage) messageConsumer.receive();
-                System.out.println("text");
+            Message message = messageConsumer.receive();
+            if (message instanceof ActiveMQBytesMessage) {
+                ActiveMQBytesMessage activeMQMessage = (ActiveMQBytesMessage) message;
+                ByteSequence content = activeMQMessage.getContent();
+                String msg = new String(content.getData());
+                System.out.println("收到ActiveMQBytesMessage");
+                return msg;
+            } else if (message instanceof ActiveMQTextMessage) {
+                ActiveMQTextMessage activeMQTextMessage = (ActiveMQTextMessage) message;
+                System.out.println("收到ActiveMQTextMessage");
                 return activeMQTextMessage.getText();
-            }catch (Exception e1){e1.printStackTrace();return "收到的消息类型不支持";}
+            } else {
+                System.out.println("收到"+message.getClass().toString());
+                return "";
+            }
+        } catch (Exception e) {
+            return "ActiveMQ接收出现异常";
         }
     }
 }
