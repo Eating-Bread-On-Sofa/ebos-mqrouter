@@ -21,10 +21,8 @@ public class InitListener implements ApplicationRunner {
         new Thread(() -> {
             MqConsumer mqConsumer = mqFactory.createConsumer("test");
             while (true) {
-                try {
-                    String msg = mqConsumer.subscribe();
-                    System.out.println("收到：" + msg);
-                }catch (Exception e){}
+                String msg = mqConsumer.subscribe();
+                System.out.println("收到：" + msg);
             }
         }).start();
     }

@@ -3,10 +3,12 @@ package cn.edu.bjtu.ebosmqrouter.service.impl;
 import cn.edu.bjtu.ebosmqrouter.service.MqConsumer;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQBytesMessage;
+import org.apache.activemq.command.ActiveMQMapMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.apache.activemq.util.ByteSequence;
 
 import javax.jms.*;
+import java.util.Map;
 
 public class ActiveMqConsumerImpl implements MqConsumer {
     private MessageConsumer messageConsumer;
@@ -37,6 +39,11 @@ public class ActiveMqConsumerImpl implements MqConsumer {
                 ActiveMQTextMessage activeMQTextMessage = (ActiveMQTextMessage) message;
                 System.out.println("收到ActiveMQTextMessage");
                 return activeMQTextMessage.getText();
+            }else if(message instanceof ActiveMQMapMessage){
+                ActiveMQMapMessage activeMQMapMessage = (ActiveMQMapMessage) message;
+                String content = activeMQMapMessage.getContentMap().toString();
+                System.out.println("收到ActiveMQMapMessage");
+                return content;
             } else {
                 System.out.println("收到"+message.getClass().toString());
                 return "";
