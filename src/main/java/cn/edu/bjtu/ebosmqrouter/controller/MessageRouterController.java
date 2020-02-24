@@ -1,6 +1,10 @@
 package cn.edu.bjtu.ebosmqrouter.controller;
 
+import cn.edu.bjtu.ebosmqrouter.service.Log;
+import cn.edu.bjtu.ebosmqrouter.service.LogFind;
 import cn.edu.bjtu.ebosmqrouter.service.MqFactory;
+import cn.edu.bjtu.ebosmqrouter.service.impl.LogFindImpl;
+import cn.edu.bjtu.ebosmqrouter.service.log.LogImpl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import cn.edu.bjtu.ebosmqrouter.service.MqProducer;
@@ -18,6 +22,10 @@ import java.util.concurrent.TimeUnit;
 public class MessageRouterController {
     @Autowired
     MqFactory mqFactory;
+    @Autowired
+    Log log = new LogImpl();
+    @Autowired
+    LogFind logFind = new LogFindImpl();
     public static JSONArray status = new JSONArray();
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1,50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
 
@@ -85,5 +93,18 @@ public class MessageRouterController {
     @GetMapping("/ping")
     public String ping(){
         return "pong";
+    }
+
+    @CrossOrigin
+    @RequestMapping ("/logtest")
+    public String logtest1(){
+        log.error("fail");
+        log.debug("mqrouter");
+        return "成功";
+    }
+    @CrossOrigin
+    @GetMapping("/logtest")
+    public String logtest2(){
+        return logFind.readAll();
     }
 }
