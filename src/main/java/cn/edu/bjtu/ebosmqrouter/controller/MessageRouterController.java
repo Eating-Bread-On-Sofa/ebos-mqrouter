@@ -1,5 +1,6 @@
 package cn.edu.bjtu.ebosmqrouter.controller;
 
+import cn.edu.bjtu.ebosmqrouter.service.LogService;
 import cn.edu.bjtu.ebosmqrouter.service.MqFactory;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -17,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 public class MessageRouterController {
     @Autowired
     MqFactory mqFactory;
+    @Autowired
+    LogService logService;
     public static JSONArray status = new JSONArray();
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1,50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
 
@@ -78,5 +81,17 @@ public class MessageRouterController {
     @GetMapping("/ping")
     public String ping(){
         return "pong";
+    }
+
+    @CrossOrigin
+    @RequestMapping ("/logtest")
+    public String logtest1(){
+        logService.info("mqrouter");
+        return "成功";
+    }
+    @CrossOrigin
+    @GetMapping("/logtest")
+    public String logtest2(){
+        return logService.findLogByCategory("info");
     }
 }
