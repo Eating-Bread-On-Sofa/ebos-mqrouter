@@ -4,7 +4,6 @@ import cn.edu.bjtu.ebosmqrouter.service.MqFactory;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import cn.edu.bjtu.ebosmqrouter.service.MqProducer;
-import cn.edu.bjtu.ebosmqrouter.util.LayuiTableResultUtil;
 import cn.edu.bjtu.ebosmqrouter.util.dataAnalysis.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +28,8 @@ public class MessageRouterController {
     }
 
     @CrossOrigin
-    @PostMapping("/raw")
-    public String newRaw(@RequestBody JSONObject info){
+    @PostMapping()
+    public String newRouter(@RequestBody JSONObject info){
         info.put("createTime", new Date().toString());
         if(!MessageRouterController.existed(info.getString("name"))){
             try{
@@ -50,12 +49,6 @@ public class MessageRouterController {
         return status;
     }
 
-    @CrossOrigin
-    @GetMapping("/list")
-    public LayuiTableResultUtil<JSONArray> allInfoTable(){
-        LayuiTableResultUtil<JSONArray> table = new LayuiTableResultUtil<>("",status,0,status.size());
-        return table;
-    }
 
     @CrossOrigin
     @DeleteMapping()
