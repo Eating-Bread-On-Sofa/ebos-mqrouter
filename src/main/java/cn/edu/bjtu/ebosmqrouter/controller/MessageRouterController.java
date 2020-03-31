@@ -29,7 +29,7 @@ public class MessageRouterController {
     }
 
     @CrossOrigin
-    @PostMapping("/raw")
+    @PostMapping()
     public String newRaw(@RequestBody JSONObject info){
         info.put("createTime", new Date().toString());
         if(!MessageRouterController.existed(info.getString("name"))){
