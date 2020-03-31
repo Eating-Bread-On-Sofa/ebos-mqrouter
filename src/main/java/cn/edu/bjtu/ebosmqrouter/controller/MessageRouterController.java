@@ -1,10 +1,10 @@
 package cn.edu.bjtu.ebosmqrouter.controller;
 
+import cn.edu.bjtu.ebosmqrouter.service.LogService;
 import cn.edu.bjtu.ebosmqrouter.service.MqFactory;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import cn.edu.bjtu.ebosmqrouter.service.MqProducer;
-import cn.edu.bjtu.ebosmqrouter.util.LayuiTableResultUtil;
 import cn.edu.bjtu.ebosmqrouter.util.dataAnalysis.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 public class MessageRouterController {
     @Autowired
     MqFactory mqFactory;
+    @Autowired
+    LogService logService;
     public static JSONArray status = new JSONArray();
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1,50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
 
@@ -30,7 +32,7 @@ public class MessageRouterController {
 
     @CrossOrigin
     @PostMapping()
-    public String newRaw(@RequestBody JSONObject info){
+    public String newRouter(@RequestBody JSONObject info){
         info.put("createTime", new Date().toString());
         if(!MessageRouterController.existed(info.getString("name"))){
             try{
@@ -50,12 +52,6 @@ public class MessageRouterController {
         return status;
     }
 
-    @CrossOrigin
-    @GetMapping("/list")
-    public LayuiTableResultUtil<JSONArray> allInfoTable(){
-        LayuiTableResultUtil<JSONArray> table = new LayuiTableResultUtil<>("",status,0,status.size());
-        return table;
-    }
 
     @CrossOrigin
     @DeleteMapping()
@@ -85,5 +81,17 @@ public class MessageRouterController {
     @GetMapping("/ping")
     public String ping(){
         return "pong";
+    }
+
+    @CrossOrigin
+    @RequestMapping ("/logtest")
+    public String logtest1(){
+        logService.info("mqrouter");
+        return "成功";
+    }
+    @CrossOrigin
+    @GetMapping("/logtest")
+    public String logtest2(){
+        return logService.findLogByCategory("info");
     }
 }
