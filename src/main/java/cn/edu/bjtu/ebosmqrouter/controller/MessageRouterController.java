@@ -91,10 +91,4 @@ public class MessageRouterController {
     public String ping(){
         return "pong";
     }
-
-    @CrossOrigin
-    @GetMapping("/log")
-    public String getLog(){
-        return logService.findAll();
-    }
 }
