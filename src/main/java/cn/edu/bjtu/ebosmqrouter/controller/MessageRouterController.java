@@ -59,7 +59,7 @@ public class MessageRouterController {
         return status;
     }
 
-    @ApiOperation(value = "删除消息路由",notes = "需和GET方法中的信息相同，包括name，incomingQueue，outcomingQueue，createTime")
+    @ApiOperation(value = "删除消息路由",notes = "需和GET方法中的信息相同，包括name，incomingQueue，outgoingQueue，createTime")
     @ApiImplicitParam(name = "info",value = "路由信息",required = true,dataType = "JSONObject")
     @CrossOrigin
     @DeleteMapping()
