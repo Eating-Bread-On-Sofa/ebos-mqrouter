@@ -34,7 +34,7 @@ public class MessageRouterController {
         return mqProducer.getClass().toString();
     }
 
-    @ApiOperation(value = "添加消息路由",notes = "需name，incomingQueue，outcomingQueue三个字段的JSON对象，分别为路由名称、接收消息队列名称、转发消息队列名称")
+    @ApiOperation(value = "添加消息路由",notes = "需name，incomingQueue，outgoingQueue三个字段的JSON对象，分别为路由名称、接收消息队列名称、转发消息队列名称")
     @ApiImplicitParam(name = "info",value = "路由信息",required = true,dataType = "JSONObject")
     @CrossOrigin
     @PostMapping()

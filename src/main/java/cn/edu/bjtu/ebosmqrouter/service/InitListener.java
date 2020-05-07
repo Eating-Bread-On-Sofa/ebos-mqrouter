@@ -19,7 +19,7 @@ public class InitListener implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments arguments){
         new Thread(() -> {
-            MqConsumer mqConsumer = mqFactory.createConsumer("test");
+            MqConsumer mqConsumer = mqFactory.createConsumer("edgex1");
             while (true) {
                 String msg = mqConsumer.subscribe();
                 System.out.println("收到：" + msg);

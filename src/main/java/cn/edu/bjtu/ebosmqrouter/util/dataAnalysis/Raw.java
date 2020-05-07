@@ -39,7 +39,6 @@ public class Raw implements Runnable {
                     String msg = mqConsumer.subscribe();
                     System.out.println("收到"+incomingQueue+msg);
                     //TO DO CACULATION HERE
-
                     mqProducer.publish(this.outgoingQueue,msg);
 
                 }catch (Exception e){e.printStackTrace();break;}
