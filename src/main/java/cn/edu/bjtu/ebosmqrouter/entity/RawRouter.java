@@ -1,32 +1,28 @@
-package cn.edu.bjtu.ebosmqrouter.util.dataAnalysis;
+package cn.edu.bjtu.ebosmqrouter.entity;
 
 import cn.edu.bjtu.ebosmqrouter.service.MqConsumer;
 import cn.edu.bjtu.ebosmqrouter.service.MqFactory;
-import com.alibaba.fastjson.JSONObject;
 import cn.edu.bjtu.ebosmqrouter.controller.MessageRouterController;
 import cn.edu.bjtu.ebosmqrouter.service.MqProducer;
 import cn.edu.bjtu.ebosmqrouter.util.ApplicationContextProvider;
+import io.swagger.annotations.ApiModelProperty;
 
+import java.util.Date;
 
-public class Raw implements Runnable {
+public class RawRouter implements Runnable {
 
     private String name;
     private String incomingQueue;
     private String outgoingQueue;
+    @ApiModelProperty(example = "2020-01-01 12:12:12")
+    private Date created;
     private MqFactory mqFactory = ApplicationContextProvider.getBean(MqFactory.class);
 
-    public Raw(String name, String incomingQueue, String outgoingQueue) {
+    public RawRouter(String name, String incomingQueue, String outgoingQueue, Date created) {
         this.name = name;
         this.incomingQueue = incomingQueue;
         this.outgoingQueue = outgoingQueue;
-    }
-
-    public JSONObject getInfo(){
-        JSONObject info = new JSONObject();
-        info.put("name",this.name);
-        info.put("incomingQueue",this.incomingQueue);
-        info.put("outgoingQueue",this.outgoingQueue);
-        return info;
+        this.created = new Date();
     }
 
     @Override
@@ -46,4 +42,35 @@ public class Raw implements Runnable {
         }catch (Exception e){e.printStackTrace();}
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getIncomingQueue() {
+        return incomingQueue;
+    }
+
+    public void setIncomingQueue(String incomingQueue) {
+        this.incomingQueue = incomingQueue;
+    }
+
+    public String getOutgoingQueue() {
+        return outgoingQueue;
+    }
+
+    public void setOutgoingQueue(String outgoingQueue) {
+        this.outgoingQueue = outgoingQueue;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
 }

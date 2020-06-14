@@ -1,17 +1,17 @@
 package cn.edu.bjtu.ebosmqrouter.controller;
 
+import cn.edu.bjtu.ebosmqrouter.entity.RawRouter;
 import cn.edu.bjtu.ebosmqrouter.service.LogService;
 import cn.edu.bjtu.ebosmqrouter.service.MqFactory;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import cn.edu.bjtu.ebosmqrouter.service.MqProducer;
-import cn.edu.bjtu.ebosmqrouter.util.dataAnalysis.*;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import java.util.Date;
+
+
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -24,30 +24,31 @@ public class MessageRouterController {
     MqFactory mqFactory;
     @Autowired
     LogService logService;
-    public static JSONArray status = new JSONArray();
+    private static final List<RawRouter> status = new LinkedList<>();
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1,50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
 
-    @GetMapping("/test/{topic}")
-    public String test(@PathVariable String topic, @RequestBody String content){
+    @GetMapping("/test/{topic}/{msg}")
+    public String test(@PathVariable String topic, @PathVariable String msg){
         MqProducer mqProducer = mqFactory.createProducer();
-        mqProducer.publish(topic,content);
+        mqProducer.publish(topic,msg);
         return mqProducer.getClass().toString();
     }
 
-    @ApiOperation(value = "添加消息路由",notes = "需name，incomingQueue，outgoingQueue三个字段的JSON对象，分别为路由名称、接收消息队列名称、转发消息队列名称")
-    @ApiImplicitParam(name = "info",value = "路由信息",required = true,dataType = "JSONObject")
+    @ApiOperation(value = "添加消息路由",notes = "需name，incomingQueue，outgoingQueue三个字段，分别为路由名称、接收消息队列名称、转发消息队列名称, created字段不用写，如果非要写格式不对会报错")
     @CrossOrigin
     @PostMapping()
-    public String newRouter(@RequestBody JSONObject info){
-        info.put("createTime", new Date().toString());
-        if(!MessageRouterController.existed(info.getString("name"))){
-            try{
-            Raw raw = new Raw(info.getString("name"),info.getString("incomingQueue"),info.getString("outgoingQueue"));
-            status.add(info);
-            threadPoolExecutor.execute(raw);
-            logService.info("添加新路由"+info.toString());
-            return "启动成功";}catch (Exception e){return "参数错误!";}
-        }else {
+    public String newRouter(@RequestBody RawRouter rawRouter) {
+        if (!MessageRouterController.check(rawRouter.getName())) {
+            try {
+                status.add(rawRouter);
+                threadPoolExecutor.execute(rawRouter);
+                logService.info("添加新路由" + rawRouter.toString());
+                return "启动成功";
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "参数错误!";
+            }
+        } else {
             return "名称重复！";
         }
     }
@@ -55,36 +56,42 @@ public class MessageRouterController {
     @ApiOperation(value = "查看消息路由",notes = "返回JSON Array，每个Object为一个路由")
     @CrossOrigin
     @GetMapping()
-    public JSONArray allInfo(){
+    public List<RawRouter> allInfo(){
         return status;
     }
 
-    @ApiOperation(value = "删除消息路由",notes = "需和GET方法中的信息相同，包括name，incomingQueue，outgoingQueue，createTime")
-    @ApiImplicitParam(name = "info",value = "路由信息",required = true,dataType = "JSONObject")
+    @ApiOperation(value = "删除消息路由")
     @CrossOrigin
-    @DeleteMapping()
-    public boolean delete(@RequestBody JSONObject info){
-        logService.info("删除路由"+info.toString());
-        return status.remove(info);
+    @DeleteMapping("/name/{name}")
+    public boolean delete(@PathVariable String name){
+        boolean flag;
+        synchronized (status){
+            flag = status.remove(search(name));
+        }
+        logService.info("删除路由"+name+":"+flag);
+        return flag;
     }
 
     public static boolean check(String name){
         boolean flag = false;
-        for (int i = 0; i < status.size(); i++){
-            if(name.equals(status.getJSONObject(i).getString("name"))){
-                flag = true;
+        for (RawRouter rawRouter : status) {
+            if(name.equals(rawRouter.getName())){
+                flag=true;
+                break;
             }
         }
         return flag;
     }
 
-    private static boolean existed(String name){
-        boolean existed = false;
-        for(int i=0; i<status.size(); i++){
-            if(name.equals(status.getJSONObject(i).getString("name"))){existed = true;}
+    public static RawRouter search(String name){
+        for (RawRouter rawRouter : status) {
+            if(name.equals(rawRouter.getName())){
+                return rawRouter;
+            }
         }
-        return existed;
+        return null;
     }
+
 
     @CrossOrigin
     @GetMapping("/ping")
