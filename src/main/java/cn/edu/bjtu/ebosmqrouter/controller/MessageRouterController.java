@@ -42,7 +42,7 @@ public class MessageRouterController {
             try {
                 status.add(rawRouter);
                 threadPoolExecutor.execute(rawRouter);
-                logService.info("添加新路由" + rawRouter.toString());
+                logService.info(null,"添加新路由" + rawRouter.toString());
                 return "启动成功";
             } catch (Exception e) {
                 e.printStackTrace();
@@ -68,7 +68,7 @@ public class MessageRouterController {
         synchronized (status){
             flag = status.remove(search(name));
         }
-        logService.info("删除路由"+name+":"+flag);
+        logService.info(null,"删除路由"+name+":"+flag);
         return flag;
     }
 
