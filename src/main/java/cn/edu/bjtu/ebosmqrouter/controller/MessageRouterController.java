@@ -1,6 +1,6 @@
 package cn.edu.bjtu.ebosmqrouter.controller;
 
-import cn.edu.bjtu.ebosmqrouter.entity.RawRouter;
+import cn.edu.bjtu.ebosmqrouter.service.RawRouter;
 import cn.edu.bjtu.ebosmqrouter.service.LogService;
 import cn.edu.bjtu.ebosmqrouter.service.MqFactory;
 import cn.edu.bjtu.ebosmqrouter.service.MqProducer;
@@ -25,7 +25,7 @@ public class MessageRouterController {
     @Autowired
     LogService logService;
     private static final List<RawRouter> status = new LinkedList<>();
-    private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1,50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
+    private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
 
     @GetMapping("/test/{topic}/{msg}")
     public String test(@PathVariable String topic, @PathVariable String msg){
@@ -34,7 +34,9 @@ public class MessageRouterController {
         return mqProducer.getClass().toString();
     }
 
-    @ApiOperation(value = "添加消息路由",notes = "需name，incomingQueue，outgoingQueue三个字段，分别为路由名称、接收消息队列名称、转发消息队列名称, created字段不用写，如果非要写格式不对会报错")
+    @ApiOperation(value = "添加消息路由",notes = "只需name，incomingQueue，outgoingQueue三个字段，" +
+            "分别为路由名称、接收消息队列名称、转发消息队列名称，\n\n"+
+            "created字段不用写，如果非要写一定要按示例写对，并且不会生效，如果写了还格式不对就会报错")
     @CrossOrigin
     @PostMapping()
     public String newRouter(@RequestBody RawRouter rawRouter) {

@@ -1,4 +1,4 @@
-package cn.edu.bjtu.ebosmqrouter.entity;
+package cn.edu.bjtu.ebosmqrouter.service;
 
 import cn.edu.bjtu.ebosmqrouter.service.MqConsumer;
 import cn.edu.bjtu.ebosmqrouter.service.MqFactory;
