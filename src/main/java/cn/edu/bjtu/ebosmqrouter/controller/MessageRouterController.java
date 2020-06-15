@@ -9,7 +9,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.SynchronousQueue;
@@ -94,7 +93,7 @@ public class MessageRouterController {
         return null;
     }
 
-
+    @ApiOperation(value = "微服务健康监测")
     @CrossOrigin
     @GetMapping("/ping")
     public String ping(){
