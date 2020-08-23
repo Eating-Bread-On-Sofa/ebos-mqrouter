@@ -1,9 +1,6 @@
 package cn.edu.bjtu.ebosmqrouter.service;
 
-import cn.edu.bjtu.ebosmqrouter.service.MqConsumer;
-import cn.edu.bjtu.ebosmqrouter.service.MqFactory;
 import cn.edu.bjtu.ebosmqrouter.controller.MessageRouterController;
-import cn.edu.bjtu.ebosmqrouter.service.MqProducer;
 import cn.edu.bjtu.ebosmqrouter.util.ApplicationContextProvider;
 import io.swagger.annotations.ApiModelProperty;
 

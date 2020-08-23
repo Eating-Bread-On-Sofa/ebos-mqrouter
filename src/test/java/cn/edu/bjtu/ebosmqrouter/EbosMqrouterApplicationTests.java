@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class EbosMqrouterApplicationTests {
 
     @Test
-    void contextLoads() {
-    }
+    void routerTest() {
 
+    }
 }

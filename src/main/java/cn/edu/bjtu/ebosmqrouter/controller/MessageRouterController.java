@@ -1,9 +1,6 @@
 package cn.edu.bjtu.ebosmqrouter.controller;
 
-import cn.edu.bjtu.ebosmqrouter.service.RawRouter;
-import cn.edu.bjtu.ebosmqrouter.service.LogService;
-import cn.edu.bjtu.ebosmqrouter.service.MqFactory;
-import cn.edu.bjtu.ebosmqrouter.service.MqProducer;
+import cn.edu.bjtu.ebosmqrouter.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +20,10 @@ public class MessageRouterController {
     MqFactory mqFactory;
     @Autowired
     LogService logService;
-    private static final List<RawRouter> status = new LinkedList<>();
+    @Autowired
+    MqRouterService mqRouterService;
+
+    public static final List<RawRouter> status = new LinkedList<>();
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
 
     @GetMapping("/test/{topic}/{msg}")
@@ -41,6 +41,7 @@ public class MessageRouterController {
     public String newRouter(@RequestBody RawRouter rawRouter) {
         if (!MessageRouterController.check(rawRouter.getName())) {
             try {
+                mqRouterService.save(rawRouter.getName(),rawRouter.getIncomingQueue(),rawRouter.getOutgoingQueue(),rawRouter.getCreated());
                 status.add(rawRouter);
                 threadPoolExecutor.execute(rawRouter);
                 logService.info(null,"添加新路由" + rawRouter.toString());
@@ -68,6 +69,7 @@ public class MessageRouterController {
         boolean flag;
         synchronized (status){
             flag = status.remove(search(name));
+            mqRouterService.delete(name);
         }
         logService.info(null,"删除路由"+name+":"+flag);
         return flag;
