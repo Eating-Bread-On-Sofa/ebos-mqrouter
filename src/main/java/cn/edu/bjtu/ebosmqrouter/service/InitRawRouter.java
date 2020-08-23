@@ -29,6 +29,5 @@ public class InitRawRouter implements ApplicationRunner {
             MessageRouterController.status.add(rawRouter);
             threadPoolExecutor.execute(rawRouter);
         }
-
     }
 }
