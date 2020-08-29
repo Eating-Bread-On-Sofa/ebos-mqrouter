@@ -8,7 +8,6 @@ import org.apache.activemq.command.ActiveMQTextMessage;
 import org.apache.activemq.util.ByteSequence;
 
 import javax.jms.*;
-import java.util.Map;
 
 public class ActiveMqConsumerImpl implements MqConsumer {
     private MessageConsumer messageConsumer;

@@ -1,13 +1,19 @@
 package cn.edu.bjtu.ebosmqrouter.controller;
 
+import cn.edu.bjtu.ebosmqrouter.entity.Subscribe;
 import cn.edu.bjtu.ebosmqrouter.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +28,12 @@ public class MessageRouterController {
     LogService logService;
     @Autowired
     MqRouterService mqRouterService;
+    @Autowired
+    MongoTemplate mongoTemplate;
+    @Autowired
+    SubAndPubService subAndPubService;
+    @Autowired
+    RestTemplate restTemplate;
 
     public static final List<RawRouter> status = new LinkedList<>();
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
@@ -41,7 +53,7 @@ public class MessageRouterController {
     public String newRouter(@RequestBody RawRouter rawRouter) {
         if (!MessageRouterController.check(rawRouter.getName())) {
             try {
-                mqRouterService.save(rawRouter.getName(),rawRouter.getIncomingQueue(),rawRouter.getOutgoingQueue(),rawRouter.getCreated());
+                mqRouterService.save(rawRouter.getName(),rawRouter.getIncomingQueue(),rawRouter.getOutgoingQueue());
                 status.add(rawRouter);
                 threadPoolExecutor.execute(rawRouter);
                 logService.info(null,"添加新路由" + rawRouter.toString());
@@ -93,6 +105,55 @@ public class MessageRouterController {
             }
         }
         return null;
+    }
+
+    @ApiOperation(value = "按微服务名称搜索订阅情况",notes = "返回一个集合")
+    @CrossOrigin
+    @GetMapping("/serviceName")
+    public List<Subscribe> findByName(String serviceName){
+        Query query = Query.query(Criteria.where("serviceName").is(serviceName));
+        return mongoTemplate.find(query,Subscribe.class,"subscribe");
+    }
+
+    @ApiOperation(value = "查看订阅情况",notes = "返回当前所有订阅信息")
+    @CrossOrigin
+    @GetMapping("/allSubscribe")
+    public List<Subscribe> showAll(){
+        return mongoTemplate.findAll(Subscribe.class,"subscribe");
+    }
+
+    @ApiOperation(value = "删除订阅主题",notes = "按照微服务名称和主题名称删除")
+    @CrossOrigin
+    @DeleteMapping("/subscribe")
+    public String deleteSubtopic(String serviceName,String subTopic){
+        Query query = Query.query(Criteria.where("serviceName").is(serviceName).and("subTopic").is(subTopic));
+        mongoTemplate.remove(query, Subscribe.class, "subscribe");
+        String url = subAndPubService.getSubUrl(serviceName) + "/" + subTopic;
+        restTemplate.delete(url);
+        return "删除成功";
+    }
+
+    @ApiOperation(value = "订阅主题",notes = "所有微服务动态订阅主题的接口")
+    @CrossOrigin
+    @PostMapping("/subscribe")
+    public String subscribe(String serviceName,String subTopic){
+        String url = subAndPubService.getSubUrl(serviceName);
+        MultiValueMap<String,String> subscribe = new LinkedMultiValueMap<>();
+        subscribe.add("subTopic",subTopic);
+        String result = restTemplate.postForObject(url,subscribe,String.class);
+        return result;
+    }
+
+    @ApiOperation(value = "发布消息",notes = "所有微服务向某topic发布消息的接口")
+    @CrossOrigin
+    @PostMapping("/publish")
+    public String publish(String serviceName,String topic,String message){
+        String url = subAndPubService.getPubUrl(serviceName);
+        MultiValueMap<String,String> publish = new LinkedMultiValueMap<>();
+        publish.add("topic",topic);
+        publish.add("message",message);
+        restTemplate.postForObject(url,publish,String.class);
+        return "发布成功";
     }
 
     @ApiOperation(value = "微服务健康监测")

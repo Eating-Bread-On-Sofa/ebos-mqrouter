@@ -19,7 +19,11 @@ public class RawRouter implements Runnable {
         this.name = name;
         this.incomingQueue = incomingQueue;
         this.outgoingQueue = outgoingQueue;
-        this.created = new Date();
+        if(created == null){
+            this.created = new Date();
+        }else{
+            this.created = created;
+        }
     }
 
     @Override
@@ -27,9 +31,12 @@ public class RawRouter implements Runnable {
         try {
             MqProducer mqProducer = mqFactory.createProducer();
             MqConsumer mqConsumer = mqFactory.createConsumer(incomingQueue);
-            while (MessageRouterController.check(name)) {
+            while (true) {
                 try {
                     String msg = mqConsumer.subscribe();
+                    if(!MessageRouterController.check(name)){
+                        break;
+                    }
                     System.out.println("收到"+incomingQueue+msg);
                     //TO DO CACULATION HERE
                     mqProducer.publish(this.outgoingQueue,msg);

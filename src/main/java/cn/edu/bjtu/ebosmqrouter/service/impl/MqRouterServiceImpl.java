@@ -18,7 +18,7 @@ public class MqRouterServiceImpl implements MqRouterService {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public void save(String name, String incomingQueue, String outgoingQueue, Date created){
+    public void save(String name, String incomingQueue, String outgoingQueue){
         MqRouter mqRouter = new MqRouter();
         mqRouter.setName(name);
         mqRouter.setIncomingQueue(incomingQueue);
@@ -37,6 +37,5 @@ public class MqRouterServiceImpl implements MqRouterService {
     public List<MqRouter> findAll() {
         return mongoTemplate.findAll(MqRouter.class,"RawRouter");
     }
-
 
 }
