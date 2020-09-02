@@ -17,6 +17,8 @@ public class InitRawRouter implements ApplicationRunner {
 
     @Autowired
     MqRouterService mqRouterService;
+    @Autowired
+    LogService logService;
 
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 50,3, TimeUnit.SECONDS,new SynchronousQueue<>());
 
@@ -27,6 +29,7 @@ public class InitRawRouter implements ApplicationRunner {
         for (MqRouter router : routers){
             RawRouter rawRouter = new RawRouter(router.getName(),router.getIncomingQueue(),router.getOutgoingQueue(),router.getCreated());
             MessageRouterController.status.add(rawRouter);
+            logService.info("update","mqroute微服务重启后，初始化启动消息路由："+rawRouter);
             threadPoolExecutor.execute(rawRouter);
         }
     }

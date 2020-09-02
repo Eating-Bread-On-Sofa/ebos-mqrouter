@@ -42,6 +42,7 @@ public class MessageRouterController {
     public String test(@PathVariable String topic, @PathVariable String msg){
         MqProducer mqProducer = mqFactory.createProducer();
         mqProducer.publish(topic,msg);
+        logService.info("create","mqrouter微服务向" + topic + "发布一条消息：" + msg);
         return mqProducer.getClass().toString();
     }
 
@@ -56,13 +57,15 @@ public class MessageRouterController {
                 mqRouterService.save(rawRouter.getName(),rawRouter.getIncomingQueue(),rawRouter.getOutgoingQueue());
                 status.add(rawRouter);
                 threadPoolExecutor.execute(rawRouter);
-                logService.info(null,"添加新路由" + rawRouter.toString());
+                logService.info("create","添加新路由：" + rawRouter.toString());
                 return "启动成功";
             } catch (Exception e) {
                 e.printStackTrace();
+                logService.error("create","添加消息路由时，参数有误");
                 return "参数错误!";
             }
         } else {
+            logService.error("create","添加消息路由时，名称重复，添加无效！");
             return "名称重复！";
         }
     }
@@ -83,7 +86,7 @@ public class MessageRouterController {
             flag = status.remove(search(name));
             mqRouterService.delete(name);
         }
-        logService.info(null,"删除路由"+name+":"+flag);
+        logService.info("delete","删除路由"+name+":"+flag);
         return flag;
     }
 
@@ -112,6 +115,7 @@ public class MessageRouterController {
     @GetMapping("/serviceName")
     public List<Subscribe> findByName(String serviceName){
         Query query = Query.query(Criteria.where("serviceName").is(serviceName));
+        logService.info("retrieve","搜索微服务"+serviceName+"订阅的topic");
         return mongoTemplate.find(query,Subscribe.class,"subscribe");
     }
 
@@ -130,6 +134,7 @@ public class MessageRouterController {
         mongoTemplate.remove(query, Subscribe.class, "subscribe");
         String url = subAndPubService.getSubUrl(serviceName) + "/" + subTopic;
         restTemplate.delete(url);
+        logService.info("delete","删除微服务"+serviceName+"订阅的主题"+subTopic);
         return "删除成功";
     }
 
@@ -141,6 +146,7 @@ public class MessageRouterController {
         MultiValueMap<String,String> subscribe = new LinkedMultiValueMap<>();
         subscribe.add("subTopic",subTopic);
         String result = restTemplate.postForObject(url,subscribe,String.class);
+        logService.info("create","微服务"+serviceName+"成功订阅主题"+subTopic);
         return result;
     }
 
@@ -153,6 +159,7 @@ public class MessageRouterController {
         publish.add("topic",topic);
         publish.add("message",message);
         restTemplate.postForObject(url,publish,String.class);
+        logService.info("create","微服务"+serviceName+"向主题"+topic+"成功发布一条消息:"+message);
         return "发布成功";
     }
 
@@ -160,6 +167,7 @@ public class MessageRouterController {
     @CrossOrigin
     @GetMapping("/ping")
     public String ping(){
+        logService.info("retrieve","对mqroute微服务进行了一次健康检测");
         return "pong";
     }
 }
