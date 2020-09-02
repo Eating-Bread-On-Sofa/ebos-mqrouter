@@ -146,7 +146,7 @@ public class MessageRouterController {
         MultiValueMap<String,String> subscribe = new LinkedMultiValueMap<>();
         subscribe.add("subTopic",subTopic);
         String result = restTemplate.postForObject(url,subscribe,String.class);
-        logService.info("create","微服务"+serviceName+"成功订阅主题"+subTopic);
+        logService.info("create","成功向微服务"+serviceName+"发送订阅主题"+subTopic+"的请求");
         return result;
     }
 
