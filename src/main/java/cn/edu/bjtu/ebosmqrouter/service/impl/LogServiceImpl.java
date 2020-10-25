@@ -3,6 +3,7 @@ package cn.edu.bjtu.ebosmqrouter.service.impl;
 import cn.edu.bjtu.ebosmqrouter.entity.Log;
 import cn.edu.bjtu.ebosmqrouter.service.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -77,6 +78,13 @@ public class LogServiceImpl implements LogService {
     @Override
     public List<Log> findAll() {
         return mongoTemplate.findAll(Log.class,"log");
+    }
+
+    @Override
+    public List<Log> findRecent() {
+        Query query = new Query();
+        query.with(Sort.by(Sort.Order.desc("date"))).limit(100);
+        return mongoTemplate.find(query,Log.class,"log");
     }
 
     @Override
