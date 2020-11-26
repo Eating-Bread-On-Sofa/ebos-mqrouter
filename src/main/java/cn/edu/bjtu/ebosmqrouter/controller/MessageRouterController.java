@@ -167,7 +167,6 @@ public class MessageRouterController {
     @CrossOrigin
     @GetMapping("/ping")
     public String ping(){
-        logService.info("retrieve","对mqroute微服务进行了一次健康检测");
         return "pong";
     }
 }
